@@ -4,7 +4,7 @@ An R package for estimating sparse and positive definite basis covariance matric
 Note that the package will be sporadically updated. Please contact amolstad@umn.edu with any questions or comments. 
 
 ### Installation
-SpPDCC can be loaded directly into R through the the `devtools` package:
+SpPDCC can be loaded directly into R through the `devtools` package:
 ```{r}
 install.packages("devtools")
 library(devtools)
