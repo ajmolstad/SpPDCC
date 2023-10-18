@@ -22,5 +22,5 @@ Please cite the most recent version of the article mentioned above. As of Octobe
       primaryClass={stat.ME}
 }
 ```
-### Usage directions
+### Vignette
 Please visit [this example page](https://ajmolstad.github.io/docs/SpPDCCExample.html) for details on implementation and usage. 
