@@ -24,3 +24,7 @@ Please cite the most recent version of the article mentioned above. As of Octobe
 ```
 ### Vignette
 Please visit [this example page](https://ajmolstad.github.io/docs/SpPDCCExample.html) for details on implementation and usage. 
+
+
+### Reproducing simulations
+Code to reproduce simulation results from the article can be found at [this repository](https://github.com/ajmolstad/CompositionalCovariance).
