@@ -375,7 +375,6 @@ gSCCwpath <- function(dat,
           X.init <- out$X.new
           Z.init <- out$Z.new
           U.init <- out$U.new
-          Omega.mat[,,,jj] <- out$X.new
         }
 
         if (sum(remove.diags(X.init)!=0) > 0) {
