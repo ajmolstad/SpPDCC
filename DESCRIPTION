@@ -1,6 +1,6 @@
 Package: SpPDCC
 Type: Package
-Title: Sparse and Positive Definite Covariance Matrix Estimation with Compositional Dat
+Title: Sparse and Positive Definite Covariance Matrix Estimation with Compositional Data
 Version: 1.0.0
 Author: Aaron J. Molstad <amolstad@umn.edu>, Piotr M. Suder <piotr.suder@duke.edu>
 Maintainer: Aaron J. Molstad <amolstad@umn.edu>
