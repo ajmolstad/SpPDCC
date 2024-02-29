@@ -1,0 +1,283 @@
+---
+title: "SpPDCC Vignette"
+output:
+  pdf_document: default
+  rmarkdown::html_vignette: default
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{SpPDCC Vignette}
+  % \VignetteDepends{lattice}
+  %\usepackage[UTF-8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(tidy = FALSE)
+```
+
+In this document, we provide a short tutorial on how to use the $\texttt{SpPDCC}$ (sparse and positive definite compositional data covariance estimation) software in R. 
+If you encounter any errors or strange behavior, please report it as an issue at https://github.com/ajmolstad/SpPDCC.
+
+First, you need to download the R package from the GitHub repository or CRAN. This can be done using $\texttt{devtools}$.
+```{r}
+# install.packages("devtools")
+# library(devtools)
+# devtools::install_github("ajmolstad/SpPDCC")
+library(SpPDCC)
+```
+### Main functions
+There are four main functions in the R package. They are 
+
+  - $\texttt{SCCpath}$: Fits the solution path for estimating the basis covariance in $H = 1$ population. 
+  - $\texttt{SCCcv}$: Performs $\texttt{nfolds}$ cross-validation to select tuning parameters in order to estimate the basis covariance in $H = 1$ population. Note that this function also returns the solution path on the complete training data. 
+  - $\texttt{gSCCpath}$:  Fits the solution path for estimating basis covariance matrices jointly in $H \geq 2$ populations. 
+  - $\texttt{gSCCcv}$:  Performs $\texttt{nfolds}$ cross-validation to select tuning parameters in order to estimate basis covariance matrices in $H \geq 2$ population. Note that this function also returns the solution path on the complete training data.  
+
+
+### Estimating a basis covariance matrix for a single population
+First, we will focus on the case where we have a single population, i.e., $H=1$. We set the basis covariance to be moderately sparse with $p = 20$ and $n = 100$. 
+```{r, cache=TRUE}
+# ------------------------------   
+# Basis covariance matrix  
+# ----------------------------- 
+p <- 20
+Omega <- matrix(0, nrow = p, ncol = p)
+for (jj in 1:p) {
+  for (kk in 1:p) {
+    Omega[jj,kk] <- 0.5^abs(jj-kk) * (abs(jj - kk) < 4)
+  }
+}
+diag(Omega) <- 1
+eo <- eigen(Omega)
+OmegaSqrt <- eo$vec%*%diag(eo$val^0.5)%*%t(eo$vec)
+```
+
+Let us then create synthetic compositional data such that the log-abundances have covariance $\texttt{Omega}$.
+```{r, cache=TRUE}
+# -----------------------------  
+# Generate log-abundances  
+# -----------------------------
+set.seed(1)
+n <- 100
+# create training set
+logW <- matrix(rnorm(n*p), nrow = n, ncol = p)%*%OmegaSqrt
+W <- exp(logW)
+dat <- W/rowSums(W)
+dat[1:5, 1:5]
+
+# create validation set
+logWval <- matrix(rnorm(n*p), nrow = n, ncol = p)%*%OmegaSqrt
+Wval <- exp(logWval)
+datval <- Wval/rowSums(Wval)
+```
+
+Now, we will show how to estimate a single basis covariance using the \texttt{SCCpath} function. This function takes two sets of data as inputs: a training set \texttt{dat}, and an optional validation set \texttt{datval}. If the validation set is included, the output will also include the validation errors. It computes the solution path for 
+$$\operatorname*{arg \ min}_{\Omega = \Omega^\top} \left( \| \widehat{\Theta} - \omega \mathbf{1}_p^\top - \mathbf{1}_p\omega^\top + 2 \Omega \|_F^2 + \lambda_1 \|\Omega^{-} \|_1 \right) ~~~\text{subject to }~\Omega \succcurlyeq \tau I_p,$$
+where $\omega = {\rm diag}(\Omega)$.
+
+The arguments for this function are as follows: 
+
+  -  $\texttt{dat}$: an $n \times p$ matrix with independent $p$-dimensional compositions organized by row
+  -  $\texttt{datval}$: an $n_{\rm val} \times p$ matrix with $p$-dimensional compositions organized by row; used to evaluate the validation error for each candidate tuning parameter
+  -  $\texttt{nlambda1}$: number of candidate $\lambda_1$ values
+  -  $\texttt{deltalambda1}$: ratio of minimum to maximum candidate values of $\lambda_1$
+  -  $\texttt{alpha0}$: starting step size for proximal gradient descent variants
+  -  $\texttt{tau}$: lower bound on eigenvalues of solution
+  -  $\texttt{max.iter}$: maximum number of allowed AccPGD or PPGD iterations
+  -  $\texttt{tol.obj}$: percent change (divided by 100) in objective function for convergence for AccPGD 
+  -  $\texttt{tol.diff}$: maximum absolute difference in successive iterates to claim convergence for AccPGD
+  -  $\texttt{tol.obj.con}$: percent change (divided by 100) in objective function for convergence for PPGD (recommended to be lower than $\texttt{tol.obj}$)
+  -  $\texttt{tol.diff.con}$: maximum absolute difference in successive iterates to claim convergence for PPGD
+  -  $\texttt{silent}$: TRUE/FALSE; suppress all progress messages? Default is TRUE.
+  -  $\texttt{quiet}$: TRUE/FALSE; suppress objective function value printing after each iteration? Should be used only for diagnostic purposes. 
+  -  $\texttt{path.requires}$: How many tuning parameters must be computed along the solution path? If fewer than $\texttt{nlambda1}$, the software will terminate solution path if validation error has increased for five consecutive $\lambda_1$. 
+
+### Computing the solution path  
+Let us now compute the solution path and plot the validation errors as a function of the tuning parameter value. We leave \texttt{silent=FALSE}, which means our function will print the validation errors as they are computed. 
+```{r, cache=TRUE, SCCexample}
+t0 <- SCCpath(dat = dat, datval = datval, 
+      nlambda1 = 25, deltalambda1 = 0.01, 
+      alpha0 = 10,   tau = 1e-4,
+      max.iter = 5e3,
+      tol.obj = 1e-6,
+      tol.diff = 1e-6,
+      silent = FALSE,
+      quiet = TRUE,
+      path.requires = NULL)
+str(t0)
+plot(log10(t0$lambda1.vec), t0$valErrs, pch=20, xlab=expression(log[10](lambda[1])), 
+     ylab="Validation error")
+abline(v = log10(t0$lambda1.vec[which.min(t0$valErrs)]))
+```
+
+The output includes 
+
+  - $\texttt{Omega}$: A $1 \times p \times p \times \texttt{nlambda1}$ array, including basis covariance matrix estimates along the solution path
+  - $\texttt{lambda1.vec}$: The candidate tuning parameters. The $k$th basis covariance estimate $\texttt{Omega[1,,,k]}$ is that fit with $k$th element of $\texttt{lambda1.vec}$.
+  - $\texttt{valErrs}$: If a validation set was included, returns the validation error for each element of $\texttt{lambda1.vec}$.
+
+Finally, we will extract our covariance matrix estimate and compare it to the truth using leveplots. 
+```{r, cache=TRUE}
+best.ind <- which.min(t0$valErrs)
+library(lattice)
+levelplot(t0$Omega[1,,,best.ind], col.regions = gray(100:0/100))
+levelplot(Omega, col.regions = gray(100:0/100))
+```
+
+
+### Cross-validation for tuning parameter selection  
+Since one will often not have a validation set on hand, it may be preferable to select tuning parameters using cross validation. For this, we can use the $\texttt{SCCcv}$ function. The arguments are nearly identical, except now we need to specify $\texttt{nfolds}$, the number of folds to be used for cross-validation. Also, no validation set is needed here. 
+
+Below, we perform cross-validation and plot the average cross-validation errors. 
+
+```{r, cache=TRUE}
+set.seed(1)
+t0.cv <- SCCcv(dat, 
+      nlambda1 = 25,
+      deltalambda1 = 0.01, 
+      alpha0 = 10,
+      nfolds = 5,   
+      tau = 1e-4,
+      max.iter = 5e3,
+      tol.obj = 1e-6,
+      tol.diff = 1e-6,
+      tol.obj.con = 1e-6,
+      tol.diff.con = 1e-6,
+      silent = FALSE,
+      quiet = TRUE)
+str(t0.cv)
+plot(log10(t0.cv$lambda1.vec), t0.cv$avg.valErrs, pch=20, xlab=expression(log[10](lambda[1])), ylab="Average CV error")
+
+```
+
+ The output closely matches that from $\texttt{SCCpath}$, except we include fold IDs, the validation errors, the averaged validation errors, and the estimate of $\Omega^*$ which uses the tuning parameter minimizing the average validation error ($\texttt{Omega.min}$).
+
+
+
+### Estimating $H \geq 2$ basis covariance matrices jointly
+Next, we will focus on the case where we have $H=2$ basis covariance matrices to estimate. Generalization to $H > 2$ is straightforward. We will use the same structure as before, except the correlations will differ slightly across the two populations. 
+```{r, cache=TRUE}
+# ------------------------------   
+# Basis covariance matrix  
+# ----------------------------- 
+p <- 20
+Omega <- array(0, dim=c(2, p, p))
+for (jj in 1:p) {
+  for (kk in 1:p) {
+    Omega[1,jj,kk] <- 0.5^abs(jj-kk) * (abs(jj - kk) < 4)
+    Omega[2,jj,kk] <- 0.7^abs(jj-kk) * (abs(jj - kk) < 5)
+  }
+}
+
+diag(Omega[1,,]) <- 1; diag(Omega[2,,]) <- 1
+eo <- eigen(Omega[1,,])
+OmegaSqrt1 <- eo$vec%*%diag(eo$val^0.5)%*%t(eo$vec)
+eo <- eigen(Omega[2,,])
+OmegaSqrt2 <- eo$vec%*%diag(eo$val^0.5)%*%t(eo$vec)
+
+# -----------------------------  
+# Generate log-abundances  
+# -----------------------------
+set.seed(1)
+n <- 100
+dat <- list(); datval <- list()
+# create training set
+logW <- matrix(rnorm(n*p), nrow = n, ncol = p)%*%OmegaSqrt1
+W <- exp(logW)
+dat[[1]] <- W/rowSums(W)
+logW <- matrix(rnorm(n*p), nrow = n, ncol = p)%*%OmegaSqrt2
+W <- exp(logW)
+dat[[2]] <- W/rowSums(W)
+
+# create validation set
+logWval <- matrix(rnorm(n*p), nrow = n, ncol = p)%*%OmegaSqrt1
+Wval <- exp(logWval)
+datval[[1]] <- Wval/rowSums(Wval)
+logWval <- matrix(rnorm(n*p), nrow = n, ncol = p)%*%OmegaSqrt2
+Wval <- exp(logWval)
+datval[[2]] <- Wval/rowSums(Wval)
+```
+Using $\texttt{gSCCpath}$, we fit the entire solution path. This takes essentially identical arguments as $\texttt{SCCpath}$, except we also have $\texttt{nlambda2}$, $\texttt{deltalambda2}$, and $\texttt{weighted}$. These new arguments are
+
+  - $\texttt{nlambda2}$. Number of candidate $\lambda_2$ 
+  - $\texttt{deltalambda2}$. Ratio of the smallest to largest $\lambda_2$. 
+  - $\texttt{weighted}$. Whether to use the version of our estimator where the loss function is weighted by each populations' sample size. Default is FALSE. 
+  
+Note that here, $\lambda_1$ and $\lambda_2$ refer to the tuning parameters from this version of our optimization problem:
+$$\operatorname*{arg \min}_{\boldsymbol{\Omega} \in \mathbb{R}^{H \times p \times p}} \left\{ \sum_{h=1}^H \left(\| \widehat{\Theta}_{(h)} - \omega_{(h)} \mathbf{1}_p^\top - \mathbf{1}_p\omega_{(h)}^\top + 2 \Omega_{(h)} \|_F^2 + \lambda_1 \|\Omega_{(h)}^{-}\|_1 \right) + \lambda_2 \sum_{j\neq k} \|\boldsymbol{\Omega}_{\cdot jk}\|_2 \right\}$$
+$$\text{subject to } ~\Omega_{(h)} = \Omega_{(h)}^\top,~ \Omega_{(h)} \succcurlyeq \tau I_p, ~~ \text{ for all } ~h \in [H], $$
+
+Again, we can evaluate the validation error on the validation set. 
+```{r, cache=TRUE}
+t1 <- gSCCpath(dat = dat, 
+      datval = datval, 
+      weighted = FALSE,
+      nlambda1 = 25, nlambda2 = 15, 
+      deltalambda1 = 0.001, 
+      deltalambda2 = 0.01, 
+      alpha0 = 1,  
+      tau = 1e-4,
+      max.iter = 5e3,
+      tol.obj = 1e-6,
+      tol.diff = 1e-6,
+      tol.obj.con = 1e-6,
+      tol.diff.con = 1e-6,
+      silent = TRUE,
+      quiet = TRUE)
+str(t1)
+levelplot(t1$valErrs, col.regions = gray(100:0/100))
+inds <- which(t1$valErrs == min(t1$valErrs), arr.ind=TRUE)
+Omega.est <- t1$Omega[,,,inds[1,1], inds[1,2]]
+sum((Omega.est[1,,] - Omega[1,,])^2); sum((Omega.est[2,,] - Omega[2,,])^2)
+```
+
+Looking at the levelplot, we see that $\lambda_1$ small appears to be best. This agrees with the intuition, since $\Omega_{(1)}^*$ and $\Omega_{(2)}^*$ have reasonably similar sparsity patterns. 
+```{r, cache=TRUE}
+t1.cv <- gSCCcv(dat = dat, 
+      nfolds = 5, 
+      nlambda1 = 20, nlambda2 = 10, 
+      deltalambda1 = 0.001, 
+      deltalambda2 = 0.01, 
+      alpha0 = 1,  
+      tau = 1e-4,
+      max.iter = 5e3,
+      tol.obj = 1e-6,
+      tol.diff = 1e-6,
+      tol.obj.con = 1e-6,
+      tol.diff.con = 1e-6,
+      silent = TRUE,
+      quiet = TRUE)
+str(t1.cv)
+sum((t1.cv$Omega.min[1,,] - Omega[1,,])^2); sum((t1.cv$Omega.min[2,,] - Omega[2,,])^2)
+```
+
+We can compare our estimate of $\Omega_{(1)}^*$  to the truth
+```{r, cache=TRUE}
+library(lattice)
+levelplot(t1.cv$Omega.min[1,,], col.regions = gray(100:0/100))
+levelplot(Omega[1,,], col.regions = gray(100:0/100))
+```
+
+Finally, we can instead use the weighted version and see how our estimate differs. Note that this estimator solves 
+$$\operatorname*{arg \min}_{\boldsymbol{\Omega} \in \mathbb{R}^{H \times p \times p}} \left\{ \sum_{h=1}^H \left( \frac{n_{(h)}}{N}\| \widehat{\Theta}_{(h)} - \omega_{(h)} \mathbf{1}_p^\top - \mathbf{1}_p\omega_{(h)}^\top + 2 \Omega_{(h)} \|_F^2 + \lambda_1 \|\Omega_{(h)}^{-}\|_1 \right) + \lambda_2 \sum_{j\neq k} \|\boldsymbol{\Omega}_{\cdot jk}\|_2 \right\}$$
+$$\text{subject to } ~\Omega_{(h)} = \Omega_{(h)}^\top,~ \Omega_{(h)} \succcurlyeq \tau I_p, ~~ \text{ for all } ~h \in [H], $$
+and similarly, uses a weighted version of our cross-validation criterion. 
+
+```{r, cache=TRUE}
+t1w.path <- gSCCpath(dat = dat, datval = datval,
+      nlambda1 = 20, nlambda2 = 10, 
+      deltalambda1 = 0.001, 
+      deltalambda2 = 0.01, 
+      weighted = TRUE,
+      alpha0 = 1,  
+      tau = 1e-4,
+      max.iter = 5e3,
+      tol.obj = 1e-6,
+      tol.diff = 1e-6,
+      tol.obj.con = 1e-6,
+      tol.diff.con = 1e-6,
+      silent = TRUE,
+      quiet = TRUE)
+str(t1w.path)
+sum((t1.cv$Omega.min[1,,] - Omega[1,,])^2); sum((t1.cv$Omega.min[2,,] - Omega[2,,])^2)
+```

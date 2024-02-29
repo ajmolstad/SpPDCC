@@ -21,7 +21,18 @@ gSCCpath(dat, datval = NULL, nlambda1 = 25, nlambda2 = 25,
 \item{deltalambda1}{The ratio of minimum to maximum \eqn{\lambda_1} tuning parameter values: must be between zero and one. Decrease if validation errors are minimized for smallest candidate \eqn{\lambda_1} value.}
 \item{deltalambda2}{The ratio of minimum to maximum \eqn{\lambda_2} tuning parameter values: must be between zero and one. Decrease if validation errors are minimized for smallest candidate \eqn{\lambda_2} value.}
 \item{weighted}{TRUE/FALSE: Should the weighted loss function be used? Default is FALSE.}
-For all others, see the example document on \url{https://github.com/ajmolstad/SpPDCC}. 
+\item{alpha0}{Starting step size for proximal gradient descent variants. Leave as default unless you have a compelling reason to modify.}
+\item{tau}{Lower bound on eigenvalues of solution. Adjust with caution.}
+\item{max.iter}{Maximum number of allowed AccPGD or PPGD iterations. }
+\item{tol.obj}{Percent change (divided by 100) in objective function for convergence for AccPGD. Adjust with caution. }
+\item{tol.diff}{Maximum absolute difference in successive iterates to claim convergence for AccPGD.Adjust with caution. }
+\item{tol.obj.con}{Percent change (divided by 100) in objective function for convergence for PPGD (recommended to be lower than \code{tol.obj}.} Adjust with caution.)
+\item{tol.diff.con}{Maximum absolute difference in successive iterates to claim convergence for PPGD. Adjust with caution.}
+\item{silent}{TRUE/FALSE; suppress all progress messages? Default is TRUE.}
+\item{quiet}{TRUE/FALSE; suppress objective function value printing after each iteration? Should be used only for diagnostic purposes.}
+\item{path.requires}{How many tuning parameters must be computed along the solution path? If fewer than \code{nlambda1}, the software will terminate solution path if validation error has increased for five consecutive \eqn{\lambda_1}. NULL (the default) computes the entire path. }
+\item{lambda1.mat}{An \code{nlambda2} by \code{nlambda1} matrix of candidate \eqn{\lambda_1}: each column is a vector for candidate \eqn{\lambda_1} for the corresponding value of \eqn{\lambda_2}. NULL allows the software to select tuning parameters internally, so this is recommended. If not NULL, must also specify \code{lambda2.vec}.}
+\item{lambda2.vec}{A vector candidate \eqn{\lambda_2} . NULL allows the software to select tuning parameters internally, so this is recommended. }
 }
 
 \value{

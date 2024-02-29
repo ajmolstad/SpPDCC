@@ -1,6 +1,6 @@
 Package: SpPDCC
 Type: Package
-Title: Sparse and positive definite covariance matrix estimation with compositional data
+Title: Sparse and Positive Definite Covariance Matrix Estimation with Compositional Dat
 Version: 1.0.0
 Author: Aaron J. Molstad <amolstad@umn.edu>, Piotr M. Suder <piotr.suder@duke.edu>
 Maintainer: Aaron J. Molstad <amolstad@umn.edu>
@@ -8,3 +8,5 @@ Description: An R package for estimating a sparse and positive definite basis co
 License: GPL (>= 2)
 URL: ajmolstad.github.io
 NeedsCompilation: yes
+VignetteBuilder: knitr
+Suggests: knitr, rmarkdown, lattice

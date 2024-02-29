@@ -18,7 +18,15 @@ gSCCcv(dat, nlambda1 = 25, nlambda2 = 25, deltalambda1 = 0.01,
 \item{deltalambda2}{The ratio of minimum to maximum \eqn{\lambda_2} tuning parameter values: must be between zero and one. Decrease if validation errors are minimized for smallest candidate \eqn{\lambda_2} value.}
 \item{weighted}{TRUE/FALSE: Should the weighted loss function be used? Default is FALSE.}
 \item{nfolds}{Positive integer indicating the number of folds for cross-validation.}
-For all others, see the example document on \url{https://github.com/ajmolstad/SpPDCC}. 
+\item{alpha0}{Starting step size for proximal gradient descent variants. Leave as default unless you have a compelling reason to modify.}
+\item{tau}{Lower bound on eigenvalues of solution. Adjust with caution.}
+\item{max.iter}{Maximum number of allowed AccPGD or PPGD iterations. }
+\item{tol.obj}{Percent change (divided by 100) in objective function for convergence for AccPGD. Adjust with caution. }
+\item{tol.diff}{Maximum absolute difference in successive iterates to claim convergence for AccPGD.Adjust with caution. }
+\item{tol.obj.con}{Percent change (divided by 100) in objective function for convergence for PPGD (recommended to be lower than \code{tol.obj}.} Adjust with caution.)
+\item{tol.diff.con}{Maximum absolute difference in successive iterates to claim convergence for PPGD. Adjust with caution.}
+\item{silent}{TRUE/FALSE; suppress all progress messages? Default is TRUE.}
+\item{quiet}{TRUE/FALSE; suppress objective function value printing after each iteration? Should be used only for diagnostic purposes.}
 }
 
 \value{
