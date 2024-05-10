@@ -1,7 +1,7 @@
 Package: SpPDCC
 Type: Package
 Title: Sparse and Positive Definite Covariance Matrix Estimation with Compositional Data
-Version: 1.0.0
+Version: 0.1.0
 Author: Aaron J. Molstad <amolstad@umn.edu>, Piotr M. Suder <piotr.suder@duke.edu>
 Maintainer: Aaron J. Molstad <amolstad@umn.edu>
 Description: An R package for estimating a sparse and positive definite basis covariance matrix with compositional data. Functions can be applied in the case where one has compositional data from a single population, or from multiple populations. In the latter case, our functions can exploit shared sparsity across the populations' basis covariance matrices. 
