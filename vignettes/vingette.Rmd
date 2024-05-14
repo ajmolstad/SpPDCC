@@ -95,8 +95,8 @@ The arguments for this function are as follows:
 ### Computing the solution path  
 Let us now compute the solution path and plot the validation errors as a function of the tuning parameter value. We leave \texttt{silent=FALSE}, which means our function will print the validation errors as they are computed. 
 ```{r, cache=TRUE, SCCexample}
-t0 <- SCCpath(dat = dat, datval = datval, 
-      nlambda1 = 25, deltalambda1 = 0.01, 
+t0 <- SCCpath(dat = dat, datval = datval,
+     nlambda1 = 25, deltalambda1 = 0.01,
       alpha0 = 10,   tau = 1e-4,
       max.iter = 5e3,
       tol.obj = 1e-6,
@@ -105,7 +105,7 @@ t0 <- SCCpath(dat = dat, datval = datval,
       quiet = TRUE,
       path.requires = NULL)
 str(t0)
-plot(log10(t0$lambda1.vec), t0$valErrs, pch=20, xlab=expression(log[10](lambda[1])), 
+plot(log10(t0$lambda1.vec), t0$valErrs, pch=20, xlab=expression(log[10](lambda[1])),
      ylab="Validation error")
 abline(v = log10(t0$lambda1.vec[which.min(t0$valErrs)]))
 ```
@@ -132,11 +132,11 @@ Below, we perform cross-validation and plot the average cross-validation errors.
 
 ```{r, cache=TRUE}
 set.seed(1)
-t0.cv <- SCCcv(dat, 
+t0.cv <- SCCcv(dat,
       nlambda1 = 25,
-      deltalambda1 = 0.01, 
+      deltalambda1 = 0.01,
       alpha0 = 10,
-      nfolds = 5,   
+      nfolds = 5,
       tau = 1e-4,
       max.iter = 5e3,
       tol.obj = 1e-6,
@@ -147,7 +147,6 @@ t0.cv <- SCCcv(dat,
       quiet = TRUE)
 str(t0.cv)
 plot(log10(t0.cv$lambda1.vec), t0.cv$avg.valErrs, pch=20, xlab=expression(log[10](lambda[1])), ylab="Average CV error")
-
 ```
 
  The output closely matches that from $\texttt{SCCpath}$, except we include fold IDs, the validation errors, the averaged validation errors, and the estimate of $\Omega^*$ which uses the tuning parameter minimizing the average validation error ($\texttt{Omega.min}$).
@@ -157,9 +156,9 @@ plot(log10(t0.cv$lambda1.vec), t0.cv$avg.valErrs, pch=20, xlab=expression(log[10
 ### Estimating $H \geq 2$ basis covariance matrices jointly
 Next, we will focus on the case where we have $H=2$ basis covariance matrices to estimate. Generalization to $H > 2$ is straightforward. We will use the same structure as before, except the correlations will differ slightly across the two populations. 
 ```{r, cache=TRUE}
-# ------------------------------   
-# Basis covariance matrix  
-# ----------------------------- 
+# ------------------------------
+# Basis covariance matrix
+# -----------------------------
 p <- 20
 Omega <- array(0, dim=c(2, p, p))
 for (jj in 1:p) {
@@ -175,8 +174,8 @@ OmegaSqrt1 <- eo$vec%*%diag(eo$val^0.5)%*%t(eo$vec)
 eo <- eigen(Omega[2,,])
 OmegaSqrt2 <- eo$vec%*%diag(eo$val^0.5)%*%t(eo$vec)
 
-# -----------------------------  
-# Generate log-abundances  
+# -----------------------------
+# Generate log-abundances
 # -----------------------------
 set.seed(1)
 n <- 100
@@ -209,13 +208,13 @@ $$\text{subject to } ~\Omega_{(h)} = \Omega_{(h)}^\top,~ \Omega_{(h)} \succcurly
 
 Again, we can evaluate the validation error on the validation set. 
 ```{r, cache=TRUE}
-t1 <- gSCCpath(dat = dat, 
-      datval = datval, 
+t1 <- gSCCpath(dat = dat,
+      datval = datval,
       weighted = FALSE,
-      nlambda1 = 25, nlambda2 = 15, 
-      deltalambda1 = 0.001, 
-      deltalambda2 = 0.01, 
-      alpha0 = 1,  
+      nlambda1 = 25, nlambda2 = 15,
+      deltalambda1 = 0.001,
+      deltalambda2 = 0.01,
+      alpha0 = 1,
       tau = 1e-4,
       max.iter = 5e3,
       tol.obj = 1e-6,
@@ -233,12 +232,12 @@ sum((Omega.est[1,,] - Omega[1,,])^2); sum((Omega.est[2,,] - Omega[2,,])^2)
 
 Looking at the levelplot, we see that $\lambda_1$ small appears to be best. This agrees with the intuition, since $\Omega_{(1)}^*$ and $\Omega_{(2)}^*$ have reasonably similar sparsity patterns. 
 ```{r, cache=TRUE}
-t1.cv <- gSCCcv(dat = dat, 
-      nfolds = 5, 
-      nlambda1 = 20, nlambda2 = 10, 
-      deltalambda1 = 0.001, 
-      deltalambda2 = 0.01, 
-      alpha0 = 1,  
+t1.cv <- gSCCcv(dat = dat,
+      nfolds = 5,
+      nlambda1 = 20, nlambda2 = 10,
+      deltalambda1 = 0.001,
+      deltalambda2 = 0.01,
+      alpha0 = 1,
       tau = 1e-4,
       max.iter = 5e3,
       tol.obj = 1e-6,
@@ -265,11 +264,11 @@ and similarly, uses a weighted version of our cross-validation criterion.
 
 ```{r, cache=TRUE}
 t1w.path <- gSCCpath(dat = dat, datval = datval,
-      nlambda1 = 20, nlambda2 = 10, 
-      deltalambda1 = 0.001, 
-      deltalambda2 = 0.01, 
+      nlambda1 = 20, nlambda2 = 10,
+      deltalambda1 = 0.001,
+      deltalambda2 = 0.01,
       weighted = TRUE,
-      alpha0 = 1,  
+      alpha0 = 1,
       tau = 1e-4,
       max.iter = 5e3,
       tol.obj = 1e-6,
