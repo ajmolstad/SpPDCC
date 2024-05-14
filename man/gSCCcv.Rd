@@ -1,6 +1,6 @@
 \name{gSCCcv}
 \alias{gSCCcv}
-\title{gSCCcv}
+\title{Cross-validation function for fitting and tuning estimator of multiple sparse and positive definite basis covariance matrices}
 \description{Fit the solution path and perform cross-validation for the sparse and positive definite estimator of multiple basis covariance matrices from compositional data.}
 \usage{
 gSCCcv(dat, nlambda1 = 25, nlambda2 = 25, deltalambda1 = 0.01, 
@@ -9,6 +9,28 @@ gSCCcv(dat, nlambda1 = 25, nlambda2 = 25, deltalambda1 = 0.01,
       tol.obj.con = 1e-6, tol.diff.con = 1e-6, silent = FALSE,
       quiet = TRUE)
 }
+\details{
+ The function \code{gSCCcv} is used to perform cross-validation and fit the solution path for the estimator of multiple sparse and positive definite basis covariance matrices described in Molstad, Ekvall, and Suder (2024, EJS). The estimator is the minimizer of 
+  \deqn{\sum_{h=1}^H \left\{\|\widehat\Theta_{(h)} - \omega_{(h)} 1_p^\top - 1_p \omega_{(h)}^\top + 2 \Omega_{(h)}\|_F^2 + 
+  \lambda_1 \sum_{j \neq k}|\Omega_{(h)jk}| \right\} + \lambda_2 \sum_{j \neq k} \|\boldsymbol{\Omega}_{\cdot jk}\|_2}
+  subject to \eqn{\Omega_{(h)} \succeq \epsilon I_p} for each \eqn{h \in [H]}. Here, 
+  \eqn{z_{(h)ijk} = \log(x_{(h)ij}/x_{(h)ik})} and \eqn{\bar{z}_{(h)jk} = \frac{1}{n}\sum_{i=1}^n z_{(h)ijk}}, 
+  \deqn{\widehat\Theta_{(h)jk} = \frac{1}{n}\sum_{i=1}^n(z_{(h)ijk} - \bar{z}_{(h)jk})^2.}
+  Note that the input data, \code{dat}, are the underlying compositions \eqn{x_{(h)i}= (x_{(h)i1}, \dots, x_{(h)ip})^\top}. This function specifically fits the solution path for the above, in addition to computing the cross-validation errors for tuning parameter selection. Given candidate tuning parameter sets \eqn{\boldsymbol{\lambda}_1} and
+\eqn{\boldsymbol{\lambda}_1}, we select tuning parameters
+according to
+\deqn{ \text{arg min}_{(\lambda_1 , \lambda_1 ) \in \boldsymbol{\lambda}_1\times
+\boldsymbol{\lambda}_2} \sum _{v=1}^{V} \sum _{h=1}^{H} \|
+\widehat{\Theta}_{(h),v} - \tilde{\omega}_{(h),-v}^{\lambda_1 , \lambda_2}
+1_{p}^{\top}- 1_{p} [\tilde{\omega}_{(h),-v}^{
+\lambda_1, \lambda_2}]^{\top }+ 2
+\hspace{2pt}
+\widetilde{\Omega}_{(h),-v}^{\lambda_1 , \lambda_2}\|_{F}^{2},}
+where \eqn{\widetilde{\boldsymbol{\Omega}}_{-v}^{\lambda_1, \lambda_2}} is the estimator with input sample variation matrices
+\eqn{\widehat{\boldsymbol{\Theta}}_{-v}}, which are computed using all the data from outside
+the \eqn{v}th fold.
+}
+
 
 \arguments{
 \item{dat}{Training data: a list of \eqn{H} distinct \eqn{n_{(h)} \times p} matrices for \eqn{h \in \{1, \dots, H\}} with \eqn{H \geq 2}. Each row of the matrices must have positive entries which sum to one.}

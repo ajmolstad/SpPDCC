@@ -1,12 +1,22 @@
 \name{SCCcv}
 \alias{SCCcv}
-\title{SCCcv}
+\title{Cross-validation function for fitting and tuning estimator sparse and positive definite basis covariance matrix}
 \description{Fit the solution path and perform cross-validation for the sparse and positive definite estimator of multiple basis covariance matrices from compositional data.}
 \usage{
 SCCcv(dat, nlambda1 = 25,
       deltalambda1 = 0.01, alpha0 = 10,  nfolds = 5, 
       tau = 1e-4, max.iter = 5e3, tol.obj = 1e-6, tol.diff = 1e-6,
       tol.obj.con = 1e-6, tol.diff.con = 1e-6, silent = FALSE, quiet = TRUE)
+}
+
+
+\details{
+ The function \code{SCCcv} is used to perform cross-validation and fit the solution path for the sparse and positive definite basis covariance matrix estimator described in Molstad, Ekvall, and Suder (2024, EJS). The estimator is the minimizer of 
+  \deqn{\|\widehat\Theta - \omega 1_p^\top - 1_p \omega^\top + 2 \Omega\|_F^2 + \lambda_1 \sum_{j \neq k}|\Omega_{jk}|}
+  subject to \eqn{\Omega \succeq \epsilon I_p}
+  where, given \eqn{z_{ijk} = \log(x_{ij}/x_{ik})} and \eqn{\bar{z}_{jk} = \frac{1}{n}\sum_{i=1}^n z_{ijk}}, 
+  \deqn{\widehat\Theta_{jk} = \frac{1}{n}\sum_{i=1}^n(z_{ijk} - \bar{z}_{jk})^2.}
+  Note that the input data, \code{dat}, are the underlying compositions \eqn{x_{i}= (x_{i1}, \dots, x_{ip})^\top}. For a description of how we select tuning parameters, see the details for \code{gSCCcv}: we use exactly the criterion described therein with \eqn{H=1}. 
 }
 
 

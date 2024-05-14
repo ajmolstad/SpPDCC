@@ -1,6 +1,6 @@
 \name{gSCCpath}
 \alias{gSCCpath}
-\title{gSCCpath}
+\title{Compute the solution path for the estimator of multiple sparse and positive definite basis covariance matrices}
 \description{Fit the solution path for the sparse and positive definite estimator of multiple basis covariance matrices from compositional data}
 \usage{
 gSCCpath(dat, datval = NULL, nlambda1 = 25, nlambda2 = 25, 
@@ -9,6 +9,16 @@ gSCCpath(dat, datval = NULL, nlambda1 = 25, nlambda2 = 25,
       tau = 1e-4, max.iter = 5e3, tol.obj = 1e-6, tol.diff = 1e-6,
       tol.obj.con = 1e-6, tol.diff.con = 1e-6, silent = FALSE, quiet = TRUE,
       path.requires = NULL)
+}
+
+\details{
+ The function \code{gSCCcv} computes the solution path for the estimator of multiple sparse and positive definite basis covariance matrices described in Molstad, Ekvall, and Suder (2024, EJS). The estimator is the minimizer of 
+  \deqn{\sum_{h=1}^H \left\{\|\widehat\Theta_{(h)} - \omega_{(h)} 1_p^\top - 1_p \omega_{(h)}^\top + 2 \Omega_{(h)}\|_F^2 + 
+  \lambda_1 \sum_{j \neq k}|\Omega_{(h)jk}| \right\} + \lambda_2 \sum_{j \neq k} \|\boldsymbol{\Omega}_{\cdot jk}\|_2}
+  subject to \eqn{\Omega_{(h)} \succeq \epsilon I_p} for each \eqn{h \in [H]}. Here, 
+  \eqn{z_{(h)ijk} = \log(x_{(h)ij}/x_{(h)ik})} and \eqn{\bar{z}_{(h)jk} = \frac{1}{n}\sum_{i=1}^n z_{(h)ijk}}, 
+  \deqn{\widehat\Theta_{(h)jk} = \frac{1}{n}\sum_{i=1}^n(z_{(h)ijk} - \bar{z}_{(h)jk})^2.}
+  Note that the input data, \code{dat}, are the underlying compositions \eqn{x_{(h)i}= (x_{(h)i1}, \dots, x_{(h)ip})^\top}.
 }
 
 

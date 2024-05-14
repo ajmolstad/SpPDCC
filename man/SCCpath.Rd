@@ -1,6 +1,6 @@
 \name{SCCpath}
 \alias{SCCpath}
-\title{gSCCpath}
+\title{Compute the solution path for the sparse and positive definite basis covariance matrix}
 \description{Fit the solution path for the sparse and positive definite estimator of multiple basis covariance matrices from compositional data}
 \usage{
 SCCpath(dat, datval = NULL, nlambda1 = 25,
@@ -30,6 +30,16 @@ SCCpath(dat, datval = NULL, nlambda1 = 25,
 \item{quiet}{TRUE/FALSE; suppress objective function value printing after each iteration? Should be used only for diagnostic purposes.}
 \item{path.requires}{How many tuning parameters must be computed along the solution path? If fewer than \code{nlambda1}, the software will terminate solution path if validation error has increased for five consecutive \eqn{\lambda_1}. NULL (the default) computes the entire path. }
 }
+
+\details{
+ The function \code{SCC} computes the solution path for the sparse and positive definite basis covariance matrix estimator described in Molstad, Ekvall, and Suder (2024, EJS). The estimator is the minimizer of 
+  \deqn{\|\widehat\Theta - \omega 1_p^\top - 1_p \omega^\top + 2 \Omega\|_F^2 + \lambda_1 \sum_{j \neq k}|\Omega_{jk}|}
+  subject to \eqn{\Omega \succeq \epsilon I_p}
+  where, given \eqn{z_{ijk} = \log(x_{ij}/x_{ik})} and \eqn{\bar{z}_{jk} = \frac{1}{n}\sum_{i=1}^n z_{ijk}}, 
+  \deqn{\widehat\Theta_{jk} = \frac{1}{n}\sum_{i=1}^n(z_{ijk} - \bar{z}_{jk})^2.}
+  Note that the input data, \code{dat}, are the underlying compositions \eqn{x_{i}= (x_{i1}, \dots, x_{ip})^\top}. 
+}
+
 
 \value{
 \item{\code{Omega}:}{An array of dimension \eqn{1 \times p \times p \times \texttt{nlambda1}}. The first three dimensions correspond to the estimated covariance matrix for the different candidate tuning parameter values.}
