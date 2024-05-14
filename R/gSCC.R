@@ -221,7 +221,7 @@ gSCCpath <- function(dat,
   # If weighted = TRUE, pass to gSSCw
   # -------------------------------------------
   if (weighted) {
-    out  <- gSCCwpath(dat = dat, 
+    out  <- gSCCw.path(dat = dat, 
       datval = datval, 
       nlambda1 = nlambda1, 
       nlambda2 = nlambda2, 
@@ -502,7 +502,7 @@ gSCCcv <- function(dat,
       quiet = TRUE){
 
   if (weighted) { 
-    out <- gSCCwcv(dat = dat, 
+    out <- gSCCw.cv(dat = dat, 
       nlambda1 = nlambda1, 
       nlambda2 = nlambda2, 
       deltalambda1 = deltalambda1, 
