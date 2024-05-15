@@ -1,4 +1,4 @@
-# SpPDCC
+# SpPDCC R package
 An R package for estimating sparse and positive definite basis covariance matrices from compositional data using the method described in [Direct covariance matrix estimation with compositional data](https://arxiv.org/abs/2212.09833). 
 
 This package will be updated sporadically. Please contact amolstad@umn.edu with any questions or comments. 
