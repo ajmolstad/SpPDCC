@@ -13,13 +13,15 @@ devtools::install_github("ajmolstad/SpPDCC")
 ### Citation instructions
 Please cite the most recent version of the article mentioned above. As of October 2023, this was the following (in bibtex): 
 ```
-@misc{molstad2022direct,
-      title={Direct covariance matrix estimation with compositional data}, 
-      author={Aaron J. Molstad and Karl Oskar Ekvall and Piotr M. Suder},
-      year={2022},
-      eprint={2212.09833},
-      archivePrefix={arXiv},
-      primaryClass={stat.ME}
+@article{molstad2024direct,
+  title={Direct covariance matrix estimation with compositional data},
+  author={Molstad, Aaron J and Ekvall, Karl Oskar and Suder, Piotr M},
+  journal={Electronic Journal of Statistics},
+  volume={18},
+  number={1},
+  pages={1702--1748},
+  year={2024},
+  publisher={The Institute of Mathematical Statistics and the Bernoulli Society}
 }
 ```
 ### Vignette
